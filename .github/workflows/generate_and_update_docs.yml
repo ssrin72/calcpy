@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r docAider-gemini/requirements.txt
+          pip install -r doc-generator-repo/requirements.txt
         working-directory: target-repo
 
       - name: Set environment variables for LLM
