@@ -29,7 +29,7 @@ jobs:
       - name: Checkout Documentation Generator Repo
         uses: actions/checkout@v4
         with:
-          repository: 'ssrin72/calcpy/docAider-gemini' # Replace with the actual path to THIS repo
+          repository: 'ssrin72/docAider-gemini' # Replace with the actual path to THIS repo
           ref: 'main' # Or the branch you want to use from the generator repo
           token: ${{ secrets.PAT_FOR_DOC_GENERATOR }} # A PAT is needed to access THIS private repo
           path: doc-generator-repo # Checkout this generator repo into 'doc-generator-repo'
@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r doc-generator-repo/requirements.txt
+          pip install -r ../doc-generator-repo/requirements.txt
         working-directory: target-repo
 
       - name: Set environment variables for LLM
