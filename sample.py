@@ -1,1 +1,1 @@
-print("This is a sample file to test the PR. Let's hope it works.")
+print("This is a sample file to test the PR.")
