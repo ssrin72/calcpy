@@ -61,11 +61,6 @@ jobs:
             --branch "${{ github.ref_name }}"
         working-directory: target-repo
 
-      - name: Add dummy file for testing Git commit
-        run: |
-          echo "This is a dummy file to ensure the documentation directory is committed." > documentation/dummy.txt
-        working-directory: target-repo
-
       - name: Verify Generated Documentation and Commit
         run: |
           echo "Listing contents of documentation directory:"
@@ -76,6 +71,7 @@ jobs:
           git status
           if ! git diff --cached --exit-code; then
             git commit -m "docs: Auto-generated documentation update"
+            git pull --rebase origin main # Pull remote changes and reapply local commit
             git push
           else
             echo "No changes to documentation, skipping commit."
