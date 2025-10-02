@@ -61,6 +61,18 @@ jobs:
             --branch "${{ github.ref_name }}"
         working-directory: target-repo
 
+      - name: Copy Generated Documentation to Target Repo
+        run: |
+          SOURCE_DIR="../doc-generator-repo/documentation"
+          DEST_DIR="documentation"
+          if [ -d "$SOURCE_DIR" ]; then
+            echo "Copying documentation from $SOURCE_DIR to $DEST_DIR"
+            rsync -av --delete "$SOURCE_DIR/" "$DEST_DIR/"
+          else
+            echo "Source directory $SOURCE_DIR does not exist or is empty. No documentation to copy."
+          fi
+        working-directory: target-repo
+
       - name: Verify Generated Documentation and Commit
         run: |
           echo "Listing contents of documentation directory:"
