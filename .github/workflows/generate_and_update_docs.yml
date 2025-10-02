@@ -29,7 +29,7 @@ jobs:
       - name: Checkout Documentation Generator Repo
         uses: actions/checkout@v4
         with:
-          repository: 'ssrin72/docAider-gemini' # Replace with the actual path to THIS repo
+          repository: 'ssrin72/calcpy/docAider-gemini' # Replace with the actual path to THIS repo
           ref: 'main' # Or the branch you want to use from the generator repo
           token: ${{ secrets.PAT_FOR_DOC_GENERATOR }} # A PAT is needed to access THIS private repo
           path: doc-generator-repo # Checkout this generator repo into 'doc-generator-repo'
@@ -48,7 +48,7 @@ jobs:
       - name: Set environment variables for LLM
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Ensure this secret is set in your TARGET repository
-          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }} # Ensure this variable is set in your TARGET repository
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }} # Ensure this variable is set in your TARGET repository
         run: |
           echo "GEMINI_API_KEY is set" # For debugging, remove in production
         working-directory: target-repo
