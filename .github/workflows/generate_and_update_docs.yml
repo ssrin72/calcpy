@@ -61,20 +61,15 @@ jobs:
             --branch "${{ github.ref_name }}"
         working-directory: target-repo
 
-      - name: Copy Generated Documentation to Target Repo
+      - name: Add dummy file for testing Git commit
         run: |
-          SOURCE_DIR="../doc-generator-repo/documentation"
-          DEST_DIR="documentation"
-          if [ -d "$SOURCE_DIR" ]; then
-            echo "Copying documentation from $SOURCE_DIR to $DEST_DIR"
-            rsync -av --delete "$SOURCE_DIR/" "$DEST_DIR/"
-          else
-            echo "Source directory $SOURCE_DIR does not exist or is empty. No documentation to copy."
-          fi
+          echo "This is a dummy file to ensure the documentation directory is committed." > documentation/dummy.txt
         working-directory: target-repo
 
-      - name: Commit generated documentation
+      - name: Verify Generated Documentation and Commit
         run: |
+          echo "Listing contents of documentation directory:"
+          ls -R documentation || echo "documentation directory is empty or does not exist."
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add documentation
