@@ -57,6 +57,10 @@ jobs:
             --branch "${{ github.ref_name }}"
         working-directory: target-repo
 
+      - name: Ensure documentation directory exists
+        run: mkdir -p documentation
+        working-directory: target-repo
+
       - name: Commit generated documentation
         run: |
           git config user.name "github-actions[bot]"
