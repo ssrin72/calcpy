@@ -54,7 +54,8 @@ jobs:
         run: |
           python ../doc-generator-repo/generate_docs_cli_local.py \
             --repo_path . \
-            --branch "${{ github.ref_name }}"
+            --branch "${{ github.ref_name }}" \
+            --output_dir documentation
         working-directory: target-repo
 
       - name: Ensure documentation directory exists
