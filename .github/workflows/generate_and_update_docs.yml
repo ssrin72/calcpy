@@ -21,18 +21,17 @@ jobs:
       - name: Checkout Target Repository
         uses: actions/checkout@v4
         with:
-          # Use a PAT or GITHUB_TOKEN with 'contents: write' scope for cross-repo access if this repo is private
-          # If this workflow is in the target repo, GITHUB_TOKEN is usually sufficient for writing to the target repo itself.
           token: ${{ secrets.GITHUB_TOKEN }}
-          path: target-repo # Checkout the target repo into 'target-repo' directory
+          path: target-repo
+          submodules: recursive
 
       - name: Checkout Documentation Generator Repo
         uses: actions/checkout@v4
         with:
-          repository: 'ssrin72/docAider-gemini' # Replace with the actual path to THIS repo
-          ref: 'main' # Or the branch you want to use from the generator repo
-          token: ${{ secrets.PAT_FOR_DOC_GENERATOR }} # A PAT is needed to access THIS private repo
-          path: doc-generator-repo # Checkout this generator repo into 'doc-generator-repo'
+          repository: 'ssrin72/docAider-gemini'
+          ref: 'main'
+          token: ${{ secrets.PAT_FOR_DOC_GENERATOR }}
+          path: doc-generator-repo
 
       - name: Set up Python
         uses: actions/setup-python@v5
