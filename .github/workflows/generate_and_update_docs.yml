@@ -17,7 +17,6 @@ jobs:
       contents: write
       pull-requests: write
 
-    # Set environment variables for the entire job
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
@@ -28,7 +27,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: target-repo
-          submodules: recursive # <-- Fetch submodules here
+          submodules: recursive
 
       - name: Checkout Documentation Generator Repo
         uses: actions/checkout@v4
@@ -44,11 +43,10 @@ jobs:
         with:
           python-version: '3.10'
 
-      # The redundant checkout step has been removed from here
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install pyautogen # <-- THE FIX IS HERE
           pip install -r ../doc-generator-repo/requirements.txt
         working-directory: target-repo
 
@@ -63,7 +61,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add documentation # Or whatever your output directory is
+          git add documentation
           git status
           if ! git diff --cached --exit-code; then
             git commit -m "docs: Auto-generated documentation update"
@@ -72,3 +70,4 @@ jobs:
             echo "No changes to documentation, skipping commit."
           fi
         working-directory: target-repo
+
