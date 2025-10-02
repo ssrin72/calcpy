@@ -1,0 +1,78 @@
+name: Generate and Update Documentation
+
+on:
+  push:
+    branches:
+      - main # Or your default branch like 'master'
+  pull_request:
+    types: [closed]
+    branches:
+      - main # Or your default branch like 'master'
+
+jobs:
+  update_documentation:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # To commit generated documentation
+      pull-requests: write # To update PR if needed (though not directly used by this script for PRs)
+
+    steps:
+      - name: Checkout Target Repository
+        uses: actions/checkout@v4
+        with:
+          # Use a PAT or GITHUB_TOKEN with 'contents: write' scope for cross-repo access if this repo is private
+          # If this workflow is in the target repo, GITHUB_TOKEN is usually sufficient for writing to the target repo itself.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: target-repo # Checkout the target repo into 'target-repo' directory
+
+      - name: Checkout Documentation Generator Repo
+        uses: actions/checkout@v4
+        with:
+          repository: 'your_username/your_doc_generator_repo_name' # Replace with the actual path to THIS repo
+          ref: 'main' # Or the branch you want to use from the generator repo
+          token: ${{ secrets.PAT_FOR_DOC_GENERATOR }} # A PAT is needed to access THIS private repo
+          path: doc-generator-repo # Checkout this generator repo into 'doc-generator-repo'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Or any compatible Python version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r doc-generator-repo/requirements.txt
+        working-directory: target-repo
+
+      - name: Set environment variables for LLM
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Ensure this secret is set in your TARGET repository
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }} # Ensure this variable is set in your TARGET repository
+        run: |
+          echo "GEMINI_API_KEY is set" # For debugging, remove in production
+        working-directory: target-repo
+
+      - name: Generate and Update Documentation
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Pass LLM API key to the script
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+        run: |
+          python ../doc-generator-repo/generate_docs_cli_local.py \
+            --repo_path . \
+            --branch "${{ github.ref_name }}"
+        working-directory: target-repo
+
+      - name: Commit generated documentation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add documentation
+          git status
+          if ! git diff --cached --exit-code; then
+            git commit -m "docs: Auto-generated documentation update"
+            git push
+          else
+            echo "No changes to documentation, skipping commit."
+          fi
+        working-directory: target-repo
