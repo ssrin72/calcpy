@@ -1,73 +1,8 @@
-name: Generate and Update Documentation
-
-on:
-  push:
-    branches:
-      - main # Or your default branch like 'master'
-  pull_request:
-    types: [closed]
-    branches:
-      - main # Or your default branch like 'master'
-
-jobs:
-  update_documentation:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-
-    # Set environment variables for the entire job
-    env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
-
-    steps:
-      - name: Checkout Target Repository with Submodules
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: target-repo
-          submodules: recursive # <-- Fetch submodules here
-
-      - name: Checkout Documentation Generator Repo
+- name: Checkout Documentation Generator Repo
         uses: actions/checkout@v4
         with:
           repository: 'ssrin72/docAider-gemini'
           ref: 'main'
           token: ${{ secrets.PAT_FOR_DOC_GENERATOR }}
           path: doc-generator-repo
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      # The redundant checkout step has been removed from here
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r ../doc-generator-repo/requirements.txt
-        working-directory: target-repo
-
-      - name: Generate and Update Documentation
-        run: |
-          python ../doc-generator-repo/generate_docs_cli_local.py \
-            --repo_path . \
-            --branch "${{ github.ref_name }}"
-        working-directory: target-repo
-
-      - name: Commit generated documentation
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add documentation # Or whatever your output directory is
-          git status
-          if ! git diff --cached --exit-code; then
-            git commit -m "docs: Auto-generated documentation update"
-            git push
-          else
-            echo "No changes to documentation, skipping commit."
-          fi
-        working-directory: target-repo
+          submodules: recursive # <-- ADD THIS LINE
