@@ -50,16 +50,15 @@ jobs:
           pip install -r ../doc-generator-repo/requirements.txt
         working-directory: target-repo
 
+      - name: Ensure documentation directory exists
+        run: mkdir -p documentation
+        working-directory: target-repo
+
       - name: Generate and Update Documentation
         run: |
           python ../doc-generator-repo/generate_docs_cli_local.py \
             --repo_path . \
-            --branch "${{ github.ref_name }}" \
-            --output_dir documentation
-        working-directory: target-repo
-
-      - name: Ensure documentation directory exists
-        run: mkdir -p documentation
+            --branch "${{ github.ref_name }}"
         working-directory: target-repo
 
       - name: Commit generated documentation
